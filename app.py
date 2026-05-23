@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class IVASSMSClient:
-    def check_otps(self, from_date="", to_date=""):
+    
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
         self.base_url = "https://www.ivasms.com"
