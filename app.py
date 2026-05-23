@@ -57,6 +57,8 @@ def get_live_traffic(self):
 
             text = soup.get_text("\n", strip=True)
 
+print(text[:5000])
+
             lines = text.splitlines()
 
             country_count = {}
