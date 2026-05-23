@@ -42,70 +42,69 @@ class IVASSMSClient:
             'Cache-Control': 'max-age=0',
         })
 
-    def get_live_traffic(self):
+def get_live_traffic(self):
 
-    try:
+        try:
 
-        response = self.scraper.get(
-            "https://www.ivasms.com/portal/live/test_sms",
-            timeout=15
-        )
+            response = self.scraper.get(
+                "https://www.ivasms.com/portal/live/test_sms",
+                timeout=15
+            )
 
-        html = self.decompress_response(response)
+            html = self.decompress_response(response)
 
-        soup = BeautifulSoup(html, "html.parser")
+            soup = BeautifulSoup(html, "html.parser")
 
-        text = soup.get_text("\n", strip=True)
+            text = soup.get_text("\n", strip=True)
 
-        lines = text.splitlines()
+            lines = text.splitlines()
 
-        country_count = {}
-        total_sms = 0
+            country_count = {}
+            total_sms = 0
 
-        for line in lines:
+            for line in lines:
 
-            line = line.strip()
+                line = line.strip()
 
-            if not line:
-                continue
-
-            if "+" in line:
-
-                parts = line.split()
-
-                if len(parts) < 2:
+                if not line:
                     continue
 
-                total_sms += 1
+                if "+" in line:
 
-                country = parts[0].upper()
+                    parts = line.split()
 
-                if country not in country_count:
-                    country_count[country] = 0
+                    if len(parts) < 2:
+                        continue
 
-                country_count[country] += 1
+                    total_sms += 1
 
-        sorted_country = sorted(
-            country_count.items(),
-            key=lambda x: x[1],
-            reverse=True
-        )
+                    country = parts[0].upper()
 
-        result = "📈 LIVE IVASMS TRAFFIC\n\n"
-        result += "Platform: WhatsApp\n"
-        result += f"Total SMS : {total_sms} (LIVE)\n\n"
+                    if country not in country_count:
+                        country_count[country] = 0
 
-        for i, (country, count) in enumerate(sorted_country, start=1):
-            result += f"{i}. {country}: {count} SMS\n"
+                    country_count[country] += 1
 
-        result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
+            sorted_country = sorted(
+                country_count.items(),
+                key=lambda x: x[1],
+                reverse=True
+            )
 
-        return result
+            result = "📈 LIVE IVASMS TRAFFIC\n\n"
+            result += "Platform: WhatsApp\n"
+            result += f"Total SMS : {total_sms} (LIVE)\n\n"
 
-    except Exception as e:
-        logger.error(e)
-        return str(e)
+            for i, (country, count) in enumerate(sorted_country, start=1):
+                result += f"{i}. {country}: {count} SMS\n"
 
+            result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
+
+            return result
+
+        except Exception as e:
+            logger.error(e)
+            return str(e)
     def decompress_response(self, response):
         """Decompress response content if encoded with gzip or brotli."""
         encoding = response.headers.get('Content-Encoding', '').lower()
