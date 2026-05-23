@@ -471,30 +471,18 @@ def get_sms():
 @app.route('/traffic')
 def traffic():
 
-    try:
-        response = client.scraper.get(
-            "https://www.ivasms.com/portal/live/test_sms",
-            timeout=10
-        )
+    result = client.get_live_traffic()
 
-        html = client.decompress_response(response)
-
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(html, "html.parser")
-
-        text = soup.get_text("\n", strip=True)
-
-        return jsonify({
-            "status": True,
-            "result": text
-        })
-
-    except Exception as e:
+    if not result:
         return jsonify({
             "status": False,
-            "error": str(e)
+            "message": "failed get traffic"
         })
 
+    return jsonify({
+        "status": True,
+        "result": result
+    })
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
