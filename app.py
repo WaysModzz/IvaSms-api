@@ -13,6 +13,7 @@ import brotli
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+app = Flask(__name__)
 
 class IVASSMSClient:
     def __init__(self):
@@ -473,6 +474,7 @@ def traffic():
     data = client.get_live_traffic()
 
     return data or "error"
+
     
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
