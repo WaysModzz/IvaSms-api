@@ -402,5 +402,49 @@ def get_sms():
         'otp_messages': otp_messages
     })
 
+@app.route('/traffic')
+def traffic():
+
+    if not client.logged_in:
+        return jsonify({
+            "status": False,
+            "message": "Login required"
+        }), 401
+
+    data = client.get_live_traffic()
+
+    if not data:
+        return "Traffic kosong"
+
+    total_sms = len(data)
+
+    country_count = {}
+
+    for item in data:
+
+        country = item.get("country", "UNKNOWN").upper()
+
+        if country not in country_count:
+            country_count[country] = 0
+
+        country_count[country] += 1
+
+    sorted_country = sorted(
+        country_count.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    text = "📈 LIVE IVASMS TRAFFIC\n\n"
+    text += "Platform: WhatsApp\n"
+    text += f"Total SMS : {total_sms} (10 Min)\n\n"
+
+    for i, (country, count) in enumerate(sorted_country, start=1):
+        text += f"{i}. {country}: {count} SMS\n"
+
+    text += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
+
+    return text
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
