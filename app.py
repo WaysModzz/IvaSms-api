@@ -13,7 +13,6 @@ import brotli
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-app = Flask(__name__)
 
 class IVASSMSClient:
     def __init__(self):
