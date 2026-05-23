@@ -406,10 +406,6 @@ def welcome():
         }
     })
 
-@app.route('/kontol')
-def kontol():
-    return "HIDUP"
-
 @app.route('/sms')
 def get_sms():
     date_str = request.args.get('date')
