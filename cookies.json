@@ -1,41 +1,14 @@
 [
-    {
-        "domain": ".ivasms.com",
-        "expirationDate": 1787302869,
-        "hostOnly": false,
-        "httpOnly": false,
-        "name": "_fbp",
-        "path": "/",
-        "sameSite": "lax",
-        "secure": false,
-        "session": false,
-        "storeId": null,
-        "value": "fb.1.1779019373037.909507759674017451"
-    },
-    {
-        "domain": "www.ivasms.com",
-        "expirationDate": 1779534069.258599,
-        "hostOnly": true,
-        "httpOnly": false,
-        "name": "XSRF-TOKEN",
-        "path": "/",
-        "sameSite": "lax",
-        "secure": false,
-        "session": false,
-        "storeId": null,
-        "value": "eyJpdiI6InZLVlpyY2g1WmpUclI5RnRBTURDc1E9PSIsInZhbHVlIjoiN2Q3aFpVbnU1M09yT3NxS3gxR1cvYWlJL0NwMkhUSTlRUkZKMzFMUEhyNllDN2VTQXBVTWxyNVNNeWkybEN5WU1tZXJac3JtWStVRVBIU2ZYQ3h3Rm5KVGhIUlNxRzJ6ZzVId2JLMC9pcUFxMytKTHZOK2xqSVZtMGpGbGwwNmwiLCJtYWMiOiI4NDQ2NmM0M2ZhNTc1ODEwN2RhZTZjMzc5NzE1NzNiOTQxNWViMWUyZTM5YjdiNGUzMDU4OGI3N2U1YWM2YjYzIiwidGFnIjoiIn0%3D"
-    },
-    {
-        "domain": "www.ivasms.com",
-        "expirationDate": 1779534069.258884,
-        "hostOnly": true,
-        "httpOnly": true,
-        "name": "ivas_sms_session",
-        "path": "/",
-        "sameSite": "lax",
-        "secure": false,
-        "session": false,
-        "storeId": null,
-        "value": "eyJpdiI6InU1cTdEM3RQdDY4R21TT1FWY3V2SUE9PSIsInZhbHVlIjoiVFdoNmhESCs2Y3M0ZEdjK0JzcVg3emhjN0hVaGtkZHJvejZlN212U2Z2ekQ0RTRDTUJZblBDSkk1ZExTeU1PMEViZTJURXpSR2NCeG9TSlo4d2VhcG1hYzU3ajIwenVvd01sQ1dFQkIxZnlNZ0FJOEZNSW9zWjBydUM3ZlFsUDAiLCJtYWMiOiI4NTQwZDBjNGU2NjM0MzA1OTQ3YmE0MzVjYTgxMTIzZmQyNDAyOTdiMmQ2YTk0MDVmOTNlNWQ3YjliYjljNDMwIiwidGFnIjoiIn0%3D"
-    }
+  {
+    "name": "_fbp",
+    "value": "fb.1.1779019373037.909507759674017451"
+  },
+  {
+    "name": "XSRF-TOKEN",
+    "value": "eyJpdiI6InZLVlpyY2g1WmpUclI5RnRBTURDc1E9PSIsInZhbHVlIjoiN2Q3aFpVbnU1M09yT3NxS3gxR1cvYWlJL0NwMkhUSTlRUkZKMzFMUEhyNllDN2VTQXBVTWxyNVNNeWkybEN5WU1tZXJac3JtWStVRVBIU2ZYQ3h3Rm5KVGhIUlNxRzJ6ZzVId2JLMC9pcUFxMytKTHZOK2xqSVZtMGpGbGwwNmwiLCJtYWMiOiI4NDQ2NmM0M2ZhNTc1ODEwN2RhZTZjMzc5NzE1NzNiOTQxNWViMWUyZTM5YjdiNGUzMDU4OGI3N2U1YWM2YjYzIiwidGFnIjoiIn0%3D"
+  },
+  {
+    "name": "ivas_sms_session",
+    "value": "eyJpdiI6InU1cTdEM3RQdDY4R21TT1FWY3V2SUE9PSIsInZhbHVlIjoiVFdoNmhESCs2Y3M0ZEdjK0JzcVg3emhjN0hVaGtkZHJvejZlN212U2Z2ekQ0RTRDTUJZblBDSkk1ZExTeU1PMEViZTJURXpSR2NCeG9TSlo4d2VhcG1hYzU3ajIwenVvd01sQ1dFQkIxZnlNZ0FJOEZNSW9zWjBydUM3ZlFsUDAiLCJtYWMiOiI4NTQwZDBjNGU2NjM0MzA1OTQ3YmE0MzVjYTgxMTIzZmQyNDAyOTdiMmQ2YTk0MDVmOTNlNWQ3YjliYjljNDMwIiwidGFnIjoiIn0%3D"
+  }
 ]
