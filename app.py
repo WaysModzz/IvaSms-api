@@ -14,6 +14,12 @@ import brotli
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+app = Flask(__name__)
+
+@app.route('/kontol')
+def kontol():
+    return "HIDUP"
+
 class IVASSMSClient:
     
     def __init__(self):
@@ -383,7 +389,7 @@ class IVASSMSClient:
         logger.debug(f"Collected {len(all_otp_messages)} OTP messages")
         return all_otp_messages
 
-app = Flask(__name__)
+
 client = IVASSMSClient()
 
 with app.app_context():
