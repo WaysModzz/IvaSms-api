@@ -35,6 +35,71 @@ class IVASSMSClient:
             'Cache-Control': 'max-age=0',
         })
 
+    def get_live_traffic(self):
+
+    if not self.logged_in:
+        return None
+
+    try:
+
+        response = self.scraper.get(
+            "https://www.ivasms.com/portal/live/test_sms",
+            timeout=15
+        )
+
+        html = self.decompress_response(response)
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        text = soup.get_text("\n")
+
+        lines = text.splitlines()
+
+        country_count = {}
+
+        total_sms = 0
+
+        for line in lines:
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            if "+" in line and any(char.isdigit() for char in line):
+
+                total_sms += 1
+
+                parts = line.split()
+
+                country = parts[0].upper()
+
+                if country not in country_count:
+                    country_count[country] = 0
+
+                country_count[country] += 1
+
+        sorted_country = sorted(
+            country_count.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
+
+        result = "📈 LIVE IVASMS TRAFFIC\n\n"
+        result += "Platform: WhatsApp\n"
+        result += f"Total SMS : {total_sms} (LIVE)\n\n"
+
+        for i, (country, count) in enumerate(sorted_country, start=1):
+            result += f"{i}. {country}: {count} SMS\n"
+
+        result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
+
+        return result
+
+    except Exception as e:
+        logger.error(e)
+        return None
+
     def decompress_response(self, response):
         """Decompress response content if encoded with gzip or brotli."""
         encoding = response.headers.get('Content-Encoding', '').lower()
@@ -402,49 +467,12 @@ def get_sms():
         'otp_messages': otp_messages
     })
 
-@app.route('/traffic')
+@@app.route('/traffic')
 def traffic():
-
-    if not client.logged_in:
-        return jsonify({
-            "status": False,
-            "message": "Login required"
-        }), 401
 
     data = client.get_live_traffic()
 
-    if not data:
-        return "Traffic kosong"
-
-    total_sms = len(data)
-
-    country_count = {}
-
-    for item in data:
-
-        country = item.get("country", "UNKNOWN").upper()
-
-        if country not in country_count:
-            country_count[country] = 0
-
-        country_count[country] += 1
-
-    sorted_country = sorted(
-        country_count.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    text = "📈 LIVE IVASMS TRAFFIC\n\n"
-    text += "Platform: WhatsApp\n"
-    text += f"Total SMS : {total_sms} (10 Min)\n\n"
-
-    for i, (country, count) in enumerate(sorted_country, start=1):
-        text += f"{i}. {country}: {count} SMS\n"
-
-    text += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
-
-    return text
-
+    return data or "error"
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
