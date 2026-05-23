@@ -44,64 +44,67 @@ class IVASSMSClient:
 
     def get_live_traffic(self):
 
-        try:
+    try:
 
-            response = self.scraper.get(
-                "https://www.ivasms.com/portal/live/test_sms",
-                timeout=15
-            )
+        response = self.scraper.get(
+            "https://www.ivasms.com/portal/live/test_sms",
+            timeout=15
+        )
 
-            html = self.decompress_response(response)
+        html = self.decompress_response(response)
 
-            soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, "html.parser")
 
-            text = soup.get_text("\n", strip=True)
+        text = soup.get_text("\n", strip=True)
 
-            lines = text.splitlines()
+        lines = text.splitlines()
 
-            country_count = {}
-            total_sms = 0
+        country_count = {}
+        total_sms = 0
 
-            for line in lines:
+        for line in lines:
 
-                line = line.strip()
+            line = line.strip()
 
-                if not line:
+            if not line:
+                continue
+
+            if "+" in line:
+
+                parts = line.split()
+
+                if len(parts) < 2:
                     continue
 
-                if "+" in line and any(char.isdigit() for char in line):
+                total_sms += 1
 
-                    total_sms += 1
+                country = parts[0].upper()
 
-                    parts = line.split()
+                if country not in country_count:
+                    country_count[country] = 0
 
-                    country = parts[0].upper()
+                country_count[country] += 1
 
-                    if country not in country_count:
-                        country_count[country] = 0
+        sorted_country = sorted(
+            country_count.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
 
-                    country_count[country] += 1
+        result = "📈 LIVE IVASMS TRAFFIC\n\n"
+        result += "Platform: WhatsApp\n"
+        result += f"Total SMS : {total_sms} (LIVE)\n\n"
 
-            sorted_country = sorted(
-                country_count.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )
+        for i, (country, count) in enumerate(sorted_country, start=1):
+            result += f"{i}. {country}: {count} SMS\n"
 
-            result = "📈 LIVE IVASMS TRAFFIC\n\n"
-            result += "Platform: WhatsApp\n"
-            result += f"Total SMS : {total_sms} (LIVE)\n\n"
+        result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
 
-            for i, (country, count) in enumerate(sorted_country, start=1):
-                result += f"{i}. {country}: {count} SMS\n"
+        return result
 
-            result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
-
-            return result
-
-        except Exception as e:
-            logger.error(e)
-            return str(e)
+    except Exception as e:
+        logger.error(e)
+        return str(e)
 
     def decompress_response(self, response):
         """Decompress response content if encoded with gzip or brotli."""
