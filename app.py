@@ -467,7 +467,7 @@ def get_sms():
         'otp_messages': otp_messages
     })
 
-@@app.route('/traffic')
+@app.route('/traffic')
 def traffic():
 
     data = client.get_live_traffic()
