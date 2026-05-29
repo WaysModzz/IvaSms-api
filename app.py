@@ -1,5 +1,4 @@
-#Copyright @Arslan-MD
-#Updates Channel t.me/arslanmd
+
 from flask import Flask, request, jsonify
 from datetime import datetime
 import cloudscraper
@@ -14,14 +13,7 @@ import brotli
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
-
-@app.route('/kontol')
-def kontol():
-    return "HIDUP"
-
 class IVASSMSClient:
-    
     def __init__(self):
         self.scraper = cloudscraper.create_scraper()
         self.base_url = "https://www.ivasms.com"
@@ -41,72 +33,125 @@ class IVASSMSClient:
             'Sec-Fetch-User': '?1',
             'Cache-Control': 'max-age=0',
         })
+        
+      def get_test_sms_data(self, from_date="", to_date=""):
+    """Fetch raw data from /portal/sms/test/sms"""
+    if not self.logged_in:
+        logger.error("Not logged in")
+        return None
 
-def get_live_traffic(self):
+    try:
+        # First GET the page to get fresh CSRF token if needed
+        response = self.scraper.get(
+            f"{self.base_url}/portal/sms/test/sms",
+            timeout=10
+        )
+        if response.status_code != 200:
+            logger.error(f"Failed to load test SMS page: {response.status_code}")
+            return None
 
-        try:
+        html_content = self.decompress_response(response)
+        soup = BeautifulSoup(html_content, 'html.parser')
 
-            response = self.scraper.get(
-                "https://www.ivasms.com/portal/live/test_sms",
-                timeout=15
-            )
+        # Refresh CSRF token from this page
+        csrf_input = soup.find('input', {'name': '_token'})
+        if csrf_input:
+            self.csrf_token = csrf_input.get('value')
 
-            html = self.decompress_response(response)
+        # Try to find DataTable or table rows directly
+        rows = soup.select("table tbody tr")
+        logger.debug(f"Found {len(rows)} rows in test SMS table")
+        return rows, soup
 
-            soup = BeautifulSoup(html, "html.parser")
+    except Exception as e:
+        logger.error(f"Error fetching test SMS page: {e}")
+        return None
 
-            text = soup.get_text("\n", strip=True)
+      def get_whatsapp_traffic(self, from_date="", to_date=""):
+    """
+    Parse /portal/sms/test/sms and count WhatsApp SMS per country (Range Name).
+    Returns sorted traffic list.
+    """
+    if not self.logged_in:
+        logger.error("Not logged in")
+        return None
 
-print(text[:5000])
+    try:
+        # Hit the page
+        params = {}
+        if from_date:
+            params['from'] = from_date
+        if to_date:
+            params['to'] = to_date
 
-            lines = text.splitlines()
+        response = self.scraper.get(
+            f"{self.base_url}/portal/sms/test/sms",
+            params=params,
+            timeout=15
+        )
 
-            country_count = {}
-            total_sms = 0
+        if response.status_code != 200:
+            logger.error(f"Failed: {response.status_code}")
+            return None
 
-            for line in lines:
+        html_content = self.decompress_response(response)
+        soup = BeautifulSoup(html_content, 'html.parser')
 
-                line = line.strip()
+        # Refresh CSRF
+        csrf_input = soup.find('input', {'name': '_token'})
+        if csrf_input:
+            self.csrf_token = csrf_input.get('value')
 
-                if not line:
-                    continue
+        # Parse table rows
+        rows = soup.select("table tbody tr")
+        logger.debug(f"Total rows found: {len(rows)}")
 
-                if "+" in line:
+        country_count = {}
+        total = 0
 
-                    parts = line.split()
+        for row in rows:
+            cols = row.select("td")
+            if len(cols) < 3:
+                continue
 
-                    if len(parts) < 2:
-                        continue
+            range_name = cols[0].get_text(strip=True)   # e.g. "TUNISIA 3987"
+            # test_number = cols[1].get_text(strip=True) # not needed
+            sid = cols[2].get_text(strip=True)           # e.g. "WhatsApp"
 
-                    total_sms += 1
+            # Only count WhatsApp
+            if 'whatsapp' not in sid.lower():
+                continue
 
-                    country = parts[0].upper()
+            # Extract country name only (remove number suffix like "3987")
+            country = ' '.join(
+                word for word in range_name.split()
+                if not word.isdigit()
+            ).strip()
 
-                    if country not in country_count:
-                        country_count[country] = 0
+            if not country:
+                country = range_name
 
-                    country_count[country] += 1
+            country_count[country] = country_count.get(country, 0) + 1
+            total += 1
 
-            sorted_country = sorted(
-                country_count.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )
+        # Sort by count descending
+        sorted_traffic = sorted(
+            [{'country': k, 'count': v} for k, v in country_count.items()],
+            key=lambda x: x['count'],
+            reverse=True
+        )
 
-            result = "📈 LIVE IVASMS TRAFFIC\n\n"
-            result += "Platform: WhatsApp\n"
-            result += f"Total SMS : {total_sms} (LIVE)\n\n"
+        logger.debug(f"WhatsApp traffic: {sorted_traffic}")
+        return {
+            'total': total,
+            'platform': 'WHATSAPP OTP',
+            'traffic': sorted_traffic
+        }
 
-            for i, (country, count) in enumerate(sorted_country, start=1):
-                result += f"{i}. {country}: {count} SMS\n"
+    except Exception as e:
+        logger.error(f"Error getting WhatsApp traffic: {e}")
+        return None
 
-            result += "\nsi plenger cek ivas mulu rcv kaga 🫵😂"
-
-            return result
-
-        except Exception as e:
-            logger.error(e)
-            return str(e)
     def decompress_response(self, response):
         """Decompress response content if encoded with gzip or brotli."""
         encoding = response.headers.get('Content-Encoding', '').lower()
@@ -393,7 +438,7 @@ print(text[:5000])
         logger.debug(f"Collected {len(all_otp_messages)} OTP messages")
         return all_otp_messages
 
-
+app = Flask(__name__)
 client = IVASSMSClient()
 
 with app.app_context():
@@ -410,6 +455,50 @@ def welcome():
         }
     })
 
+@app.route('/traffic')
+def get_traffic():
+    date_str  = request.args.get('date', '')
+    to_date   = request.args.get('to_date', '')
+
+    if date_str:
+        try:
+            datetime.strptime(date_str, '%d/%m/%Y')
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use DD/MM/YYYY'}), 400
+
+    if not client.logged_in:
+        return jsonify({'error': 'Client not authenticated'}), 401
+
+    data = client.get_whatsapp_traffic(from_date=date_str, to_date=to_date)
+
+    if not data:
+        return jsonify({'error': 'Failed to fetch traffic data'}), 500
+
+    # Format teks ala bot Telegram
+    lines = [
+        "┌─「 𖣂 CEK TRAFFIC IVASMS 」",
+        "│",
+        f"│ TOTAL SMS : {data['total']}",
+        f"│ PLATFORM  : {data['platform']} ⏆",
+        "│──────────⬡",
+    ]
+    for i, item in enumerate(data['traffic'], 1):
+        lines.append(f"│ {i}. {item['country']} : {item['count']} SMS")
+    lines += [
+        "│──────────⬡",
+        "│",
+        "© BOT WS BY WAYSS"
+    ]
+
+    return jsonify({
+        'status'     : 'success',
+        'date'       : date_str or 'All time',
+        'platform'   : data['platform'],
+        'total_sms'  : data['total'],
+        'traffic'    : data['traffic'],
+        'formatted'  : '\n'.join(lines)
+    })
+    
 @app.route('/sms')
 def get_sms():
     date_str = request.args.get('date')
@@ -474,15 +563,5 @@ def get_sms():
         'otp_messages': otp_messages
     })
 
-@app.route('/traffic')
-def traffic():
-
-    result = client.get_live_traffic()
-
-    return jsonify({
-        "status": True,
-        "result": result
-    })
-    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
